@@ -22,6 +22,7 @@ using flixel.util.FlxSpriteUtil;
 class PlayState extends FlxState
 {
 	public var player:Player;
+	public var visibleRadius:Float;
 	var _background:FlxSprite;
 	var _terrain:FlxSprite;
 	var _stone:FlxSprite;
@@ -32,6 +33,7 @@ class PlayState extends FlxState
 	var _tileMap:FlxTilemap;
 
 	//Layers
+	var _grpEntities:FlxTypedGroup<FlxSprite>;
 	var _grpObastacles:FlxTypedGroup<FlxSprite>;
 	var _grpCreatures:FlxTypedGroup<FlxSprite>;
 	var _grpTileMap:FlxTypedGroup<FlxSprite>;
@@ -63,7 +65,7 @@ class PlayState extends FlxState
 		// _stone.centerOffsets();
 		// add(_stone);
 		//Prototype end
-
+		_grpEntities = new FlxTypedGroup<FlxSprite>();
 		//Tiled Map
 		var tileLoader = new TiledLoader(AssetPaths.tilemap__tmx);
 		_tileMap = tileLoader.loadTilemap(AssetPaths.tiles__png);
@@ -73,6 +75,7 @@ class PlayState extends FlxState
 		add(_tileMap);
 		tileLoader.loadObjectgroups(createObjects);
 
+		add(_grpEntities);
 		// player = new Player();
 		// player.screenCenter(FlxAxes.XY);
 		add(player);
@@ -115,8 +118,8 @@ class PlayState extends FlxState
 		switch (layer) {
 			case TiledParser.PLAYER_LAYER:
 				player = TiledParser.parsePlayer(data);
-			case TiledParser.BLOCK_LAYER:
-				// _grpBlocks.add(TiledParser.parseBlock(data));
+			case TiledParser.ENTITY_LAYER:
+				_grpEntities.add(TiledParser.parseEntity(data));
 			case TiledParser.PORTAL_LAYER:
 				// _grpPortals.add(TiledParser.parsePortal(data));
 			default:
@@ -125,14 +128,38 @@ class PlayState extends FlxState
 	}
 
 	function updateFogOfWar() {
-		//Fog of war stuff
+		//Fog of war light
 		var rect = new Rectangle(0, 0, FlxG.width, FlxG.height);
+		visibleRadius = GameConfig.dayVisibilityRadius;
 		// _light.setPosition(FlxG.camera.scroll.x, FlxG.camera.scroll.y);
 		_light.pixels.fillRect(rect, 0xFFFFFF66);
 		_light.drawCircle(player.getMidpoint().x - FlxG.camera.scroll.x, player.getMidpoint().y - FlxG.camera.scroll.y,
-						  GameConfig.dayVisibilityRadius, 0xFFFFFF00);
+						  visibleRadius, 0xFFFFFF00);
 
+		// Update objects visibility
+		_grpEntities.forEach(function (obj:FlxSprite) {
+			
+			if (Std.is(obj, Entity)) {
+				var entity:Entity = cast(obj, Entity);
+				if (!entity.isVisibleInFog) {
+					var distance:Float = player.getMidpoint().distanceTo(entity.getMidpoint());
+					if (distance <= visibleRadius) {
+						entity.visible = true;
+					}
+					else {
+						entity.visible = false;
+					}
+				}
+				if (entity.isOnScreen()) {
+					if (entity.lightRadius > 0) {
+						_light.drawCircle(entity.getMidpoint().x - FlxG.camera.scroll.x, entity.getMidpoint().y - FlxG.camera.scroll.y,
+							  entity.lightRadius, 0xFFFFFF00);
+					}
+				}
+			}
+		});
 
+		//Fog of war darkness
 		_fog.setPosition(FlxG.camera.scroll.x, FlxG.camera.scroll.y);
 		_fog.pixels.fillRect(rect, 0x00000000);
 		_fog.pixels.copyChannel(_light.pixels, rect, new Point(0, 0), BitmapDataChannel.BLUE, BitmapDataChannel.ALPHA);

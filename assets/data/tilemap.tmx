@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="60" height="40" tilewidth="16" tileheight="16" nextobjectid="2">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="60" height="40" tilewidth="16" tileheight="16" nextobjectid="13">
  <tileset firstgid="1" name="tiles" tilewidth="16" tileheight="16" tilecount="3" columns="3">
   <image source="../images/tiles.png" trans="ff09cd" width="48" height="16"/>
  </tileset>
@@ -52,5 +52,11 @@
  </layer>
  <objectgroup name="Player">
   <object id="1" name="the playa" gid="4" x="107" y="572" width="16" height="16"/>
+ </objectgroup>
+ <objectgroup name="Entities">
+  <object id="2" name="fire" x="454" y="468" width="11" height="11"/>
+  <object id="10" name="wolf" x="336" y="509" width="17" height="13"/>
+  <object id="11" name="bear" x="623" y="465" width="20" height="16"/>
+  <object id="12" name="bear" x="810" y="203" width="20" height="16"/>
  </objectgroup>
 </map>

@@ -2,45 +2,45 @@ package;
 
 import flixel.group.FlxGroup;
 import flixel.math.FlxPoint;
+import flixel.FlxSprite;
 import flixel.FlxG;
+import flixel.util.FlxColor;
 
 class TiledParser 
 {
 	public static var PLAYER_LAYER = "Player";
-	public static var BLOCK_LAYER = "Obstacles";
+	public static var ENTITY_LAYER = "Entities";
 	public static var PORTAL_LAYER = "Creatures";
 	static var X_ATTR = "x";
 	static var Y_ATTR = "y";
 	static var HEIGHT_ATTR = "height";
 	static var TYPE_ATTR = "type";
+	static var NAME_ATTR = "name";
 
-	// public static function parseBlock(data:Xml):Block
-	// {
-	// 	var origin = parseXY(data);
-	// 	var type = Std.parseInt(data.get(TYPE_ATTR));
-	// 	var block = new Block(origin.x, origin.y, type);
-	// 	block.targetPos = new FlxPoint(origin.x, origin.y);
-	// 	// var type:Int = Std.parseInt(data.get(TYPE_ATTR));
-	// 	for (child in data) {
-	// 		if (child.nodeType == Xml.XmlType.Element) {
-	// 			FlxG.log.add("child: " + child.nodeName);
-	// 		}
-	// 	}
+	public static function parseEntity(data:Xml):Entity
+	{
+		var origin = parseXY(data);
+		var type = Std.parseInt(data.get(TYPE_ATTR));
+		var name = data.get(NAME_ATTR);
+		var entity = new Entity(origin.x, origin.y);
 
-	// 	for (e in data.firstElement().elementsNamed("property")) {
-	// 		FlxG.log.add("found a property");
-	// 		if (e.get("name") == "initial") {
-	// 			block.initialPos = Std.parseInt(e.get("value"));
-	// 			FlxG.log.add("found a initial value!");
-	// 		}
-	// 		else if (e.get("name") == "final") {
-	// 			block.finalPos = Std.parseInt(e.get("value"));
-	// 		}
-	// 	}
-	// 	FlxG.log.add("parseblock: " + data.toString());
+		if (name != null && name == "fire") {
+			entity.makeGraphic(12, 12, FlxColor.ORANGE, true);
+			entity.lightRadius = GameConfig.fireLightRadius;
+		}
+		else if (name != null && name == "bear") {
+			entity.makeGraphic(20, 16, FlxColor.BROWN, true);
+			entity.isVisibleInFog = false;
+		}
+		else if (name != null && name == "wolf") {
+			entity.makeGraphic(14, 14, FlxColor.GRAY, true);
+			entity.isVisibleInFog = false;
+		}
 
-	// 	return block;
-	// }
+		FlxG.log.add("parseblock: " + data.toString());
+
+		return entity;
+	}
 
 	public static function parsePlayer(data:Xml):Player
 	{
