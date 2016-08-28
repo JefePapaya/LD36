@@ -36,36 +36,25 @@ class PlayState extends FlxState
 	var _grpEntities:FlxTypedGroup<FlxSprite>;
 	var _grpObastacles:FlxTypedGroup<FlxSprite>;
 	var _grpCreatures:FlxTypedGroup<FlxSprite>;
+	var _grpItems:FlxTypedGroup<FlxSprite>;
 	var _grpTileMap:FlxTypedGroup<FlxSprite>;
+	
+	
+	//Navigation
+	var _cameraReturnTimer:Float = GameConfig.navigationCameraIdleReturnTime;
+	public var navigation:Navigation;
+
+	//HUD
+	public var gameHUD:GameHUD;
 
 	override public function create():Void
 	{
 		super.create();
 
-		//Prototype start
-		// _background = new FlxSprite();
-		// _background.makeGraphic(FlxG.width, FlxG.height, 0xFF99BBCC, true);
-		// add(_background);
-
-		// _terrain  = new FlxSprite();
-		// _terrain.makeGraphic(Math.round(FlxG.width * 0.5), Math.round(FlxG.height * 0.5), FlxColor.WHITE, true);
-		// _terrain.x = FlxG.width * 0.25;
-		// _terrain.y = FlxG.height * 0.25;
-		// _terrain.width = FlxG.width * 0.5;
-		// _terrain.height = FlxG.height * 0.5;
-		// add(_terrain);
-
-		// _stone  = new FlxSprite();
-		// _stone.makeGraphic(32, 32, FlxColor.GRAY, true);
-		// _stone.x = FlxG.width * 0.4;
-		// _stone.y = FlxG.height * 0.4;
-		// _stone.width = 32;
-		// _stone.height = 32;
-		// _stone.immovable = true;
-		// _stone.centerOffsets();
-		// add(_stone);
-		//Prototype end
 		_grpEntities = new FlxTypedGroup<FlxSprite>();
+		_grpObastacles = new FlxTypedGroup<FlxSprite>();
+		_grpCreatures = new FlxTypedGroup<FlxSprite>();
+		_grpItems = new FlxTypedGroup<FlxSprite>();
 		//Tiled Map
 		var tileLoader = new TiledLoader(AssetPaths.tilemap__tmx);
 		_tileMap = tileLoader.loadTilemap(AssetPaths.tiles__png);
@@ -75,7 +64,10 @@ class PlayState extends FlxState
 		add(_tileMap);
 		tileLoader.loadObjectgroups(createObjects);
 
+		add(_grpObastacles);
 		add(_grpEntities);
+		add(_grpItems);
+		add(_grpCreatures);
 		// player = new Player();
 		// player.screenCenter(FlxAxes.XY);
 		add(player);
@@ -90,7 +82,13 @@ class PlayState extends FlxState
 		
 		add(_fog);
 
-		FlxG.camera.follow(player, FlxCameraFollowStyle.PLATFORMER);
+		navigation = new Navigation(this);
+		FlxG.camera.focusOn(player.getMidpoint());
+		add(navigation);
+
+		//HUD
+		gameHUD = new GameHUD(this);
+		add(gameHUD);
 	}
 
 	override public function update(elapsed:Float):Void
@@ -101,6 +99,7 @@ class PlayState extends FlxState
 
 		updateInput();
 		FlxG.collide(player, _stone, collidePlayerStone);
+		FlxG.collide(player, _grpObastacles);
 		FlxG.collide(player, _tileMap);
 		//Animation must be updated after collision
 		player.updateAnimation(elapsed);
@@ -112,18 +111,21 @@ class PlayState extends FlxState
 		super.draw();
 	}
 
-
 	function createObjects(layer:String, data:Xml)
 	{
 		switch (layer) {
 			case TiledParser.PLAYER_LAYER:
 				player = TiledParser.parsePlayer(data);
 			case TiledParser.ENTITY_LAYER:
-				_grpEntities.add(TiledParser.parseEntity(data));
-			case TiledParser.PORTAL_LAYER:
-				// _grpPortals.add(TiledParser.parsePortal(data));
+				_grpEntities.add(TiledParser.parseObject(data));
+			case TiledParser.CREATURES_LAYER:
+				_grpCreatures.add(TiledParser.parseObject(data));
+			case TiledParser.ENVIRONMENT_LAYER:
+				_grpObastacles.add(TiledParser.parseObject(data));
+			case TiledParser.ITEMS_LAYER:
+				_grpObastacles.add(TiledParser.parseObject(data));
 			default:
-				throw "Tried to load unknown layer";
+				throw "Tried to load unknown layer: " + layer;
 		}
 	}
 

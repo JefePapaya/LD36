@@ -54,6 +54,16 @@ class Player extends FlxSprite
 		super.updateAnimation(elapsed);
 	}
 
+	public function getItem(item:Entity)
+	{
+		if (getMidpoint().distanceTo(item.getMidpoint()) > width * 2) {
+			GameHUD.sharedInstance.displayStatusText(Strings.ACTION_TOO_FAR);
+		}
+		else {
+			//gets the item
+		}
+	}
+
 	function updateMovement() 
 	{		
 		var up = false;
