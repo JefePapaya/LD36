@@ -8,11 +8,11 @@ import flixel.util.FlxColor;
 
 class TiledParser 
 {
-	public static var PLAYER_LAYER = "Player";
-	public static var ENTITY_LAYER = "Entities";
-	public static var CREATURES_LAYER = "Creatures";
-	public static var ENVIRONMENT_LAYER = "Environment";
-	public static var ITEMS_LAYER = "Items";
+	public inline static var PLAYER_LAYER = "Player";
+	public inline static var ENTITY_LAYER = "Entities";
+	public inline static var CREATURES_LAYER = "Creatures";
+	public inline static var ENVIRONMENT_LAYER = "Environment";
+	public inline static var ITEMS_LAYER = "Items";
 	static var X_ATTR = "x";
 	static var Y_ATTR = "y";
 	static var HEIGHT_ATTR = "height";
@@ -26,52 +26,59 @@ class TiledParser
 		var name = data.get(NAME_ATTR);
 		var entity = new Entity(origin.x, origin.y);
 
-		if (name != null && name == "fire") {
-			entity.makeGraphic(12, 12, FlxColor.ORANGE, true);
-			entity.lightRadius = GameConfig.fireLightRadius;
+		// if (name != null && name == "fire") {
+		// 	entity.lightRadius = GameConfig.fireLightRadius;
+		// }
+		// else if (name != null && name == "bear") {
+		// 	entity.makeGraphic(20, 16, FlxColor.BROWN, true);
+		// 	entity.isVisibleInFog = false;
+		// }
+		// else if (name != null && name == "wolf") {
+		// 	entity.makeGraphic(14, 14, FlxColor.GRAY, true);
+		// 	entity.isVisibleInFog = false;
+		// 	entity.actionText = Strings.ACTION_WOLF;
+		// }
+		// else if (name != null && name == "tree") {
+		// 	entity.makeGraphic(14, 32, FlxColor.GREEN, true);	
+		// 	entity.immovable = true;
+		// }
+		// else if (name != null && name == "axe") {
+		// 	entity.makeGraphic(14, 14, FlxColor.BLUE, true);
+		// 	entity.isVisibleInFog = false;
+		// 	entity.actionText = Strings.ACTION_AXE;
+		// }
+		// else if (name != null && name == "hut") {
+		// 	entity.makeGraphic(32, 48, FlxColor.BROWN, true);
+		// 	entity.isVisibleInFog = false;
+		// 	entity.immovable = true;
+		// 	entity.actionText = Strings.ACTION_HUT;
+		// 	var action1 = new ActionObject();
+		// 	action1.description = "Go Inside";
+		// 	action1.action = function () {
+		// 		trace("Go inside action");
+		// 	};
+		// 	entity.actions.push(action1);
+		// 	var action2 = new ActionObject();
+		// 	action2.description = "Chest";
+		// 	action2.action = function () {
+		// 		trace("Chest action");
+		// 	};
+		// 	entity.actions.push(action2);
+		// 	var action3 = new ActionObject();
+		// 	action3.description = "Fire bond";
+		// 	action3.action = function () {
+		// 		trace("Fire bond action");
+		// 	};
+		// 	entity.actions.push(action3);
+		// }
+
+		var path = "assets/images/objects/" + name;
+		if (type != null) {
+			path = path + "_" + type;
 		}
-		else if (name != null && name == "bear") {
-			entity.makeGraphic(20, 16, FlxColor.BROWN, true);
-			entity.isVisibleInFog = false;
-		}
-		else if (name != null && name == "wolf") {
-			entity.makeGraphic(14, 14, FlxColor.GRAY, true);
-			entity.isVisibleInFog = false;
-			entity.actionText = Strings.ACTION_WOLF;
-		}
-		else if (name != null && name == "tree") {
-			entity.makeGraphic(14, 32, FlxColor.GREEN, true);	
-			entity.immovable = true;
-		}
-		else if (name != null && name == "axe") {
-			entity.makeGraphic(14, 14, FlxColor.BLUE, true);
-			entity.isVisibleInFog = false;
-			entity.actionText = Strings.ACTION_AXE;
-		}
-		else if (name != null && name == "hut") {
-			entity.makeGraphic(32, 48, FlxColor.BROWN, true);
-			entity.isVisibleInFog = false;
-			entity.immovable = true;
-			entity.actionText = Strings.ACTION_HUT;
-			var action1 = new ActionObject();
-			action1.description = "Go Inside";
-			action1.action = function () {
-				trace("Go inside action");
-			};
-			entity.actions.push(action1);
-			var action2 = new ActionObject();
-			action2.description = "Chest";
-			action2.action = function () {
-				trace("Chest action");
-			};
-			entity.actions.push(action2);
-			var action3 = new ActionObject();
-			action3.description = "Fire bond";
-			action3.action = function () {
-				trace("Fire bond action");
-			};
-			entity.actions.push(action3);
-		}
+		path = path + ".png";
+
+		entity.loadGraphic(path);
 
 		FlxG.log.add("parseblock: " + data.toString());
 

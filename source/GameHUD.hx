@@ -7,6 +7,9 @@ import flixel.math.FlxPoint;
 import flixel.text.FlxText;
 import flixel.util.FlxAxes;
 import flixel.util.FlxColor;
+import flash.geom.Rectangle;
+import flixel.addons.ui.FlxUI9SliceSprite;
+
 
 class GameHUD extends FlxTypedGroup<FlxSprite> 
 {
@@ -22,6 +25,8 @@ class GameHUD extends FlxTypedGroup<FlxSprite>
 	var _actionTxtTimer:Float = 1;
 	var _statusTxtTimer:Float = 1;
 
+	//9Slice test
+	var _9slice:FlxUI9SliceSprite;
 
 	public function new(state:PlayState)
 	{

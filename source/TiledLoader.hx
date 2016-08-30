@@ -1,6 +1,9 @@
 package ;
 
 import flixel.FlxG;
+import flixel.FlxObject;
+import flixel.graphics.frames.FlxTileFrames;
+import flixel.math.FlxPoint;
 import flixel.tile.FlxTilemap;
 import flixel.math.FlxRect;
 import haxe.xml.Fast;
@@ -71,8 +74,23 @@ class TiledLoader
 	public function loadTilemap(TileGraphic:Dynamic, TileWidth:Int = 16, TileHeight:Int = 16, TileLayer:String = "data"):FlxTilemap
 	{
 		var tileMap:FlxTilemap = new FlxTilemap();
+		TileGraphic = FlxTileFrames.fromBitmapAddSpacesAndBorders(TileGraphic, new FlxPoint(TileWidth, TileHeight), new FlxPoint(0, 0), new FlxPoint(1, 1));
 		tileMap.loadMapFromCSV(_fastXml.node.layer.node.resolve(TileLayer).innerData, TileGraphic, TileWidth, TileHeight, 1);
 		return tileMap;
+	}
+
+	public function loadTilemapLayer(TileGraphic:Dynamic, TileWidth:Int = 32, TileHeight:Int = 32, TileLayer:String):FlxTilemap
+	{
+		var tileMap:FlxTilemap = new FlxTilemap();
+		for (xml in _fastXml.nodes.layer) 
+		{
+			if (xml.has.name && xml.att.name == TileLayer) {
+				TileGraphic = FlxTileFrames.fromBitmapAddSpacesAndBorders(TileGraphic, new FlxPoint(TileWidth, TileHeight), new FlxPoint(0, 0), new FlxPoint(1, 1));
+				tileMap.loadMapFromCSV(xml.node.data.innerData, TileGraphic, TileWidth, TileHeight, 1);
+				return tileMap;
+			}
+		}
+		return null;	
 	}
 
 	/**

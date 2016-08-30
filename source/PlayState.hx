@@ -8,6 +8,7 @@ import flixel.FlxState;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.text.FlxText;
 import flixel.tile.FlxTilemap;
+import flixel.tile.FlxBaseTilemap;
 import flixel.ui.FlxButton;
 import flixel.math.FlxMath;
 import flixel.util.FlxAxes;
@@ -30,6 +31,7 @@ class PlayState extends FlxState
 	var _light:FlxSprite;
 
 	//TileMap
+	var _backgroundTileMap:FlxTilemap;
 	var _tileMap:FlxTilemap;
 
 	//Layers
@@ -47,6 +49,7 @@ class PlayState extends FlxState
 	//HUD
 	public var gameHUD:GameHUD;
 
+	@:access(flixel.tile.FlxBaseTilemap)
 	override public function create():Void
 	{
 		super.create();
@@ -57,12 +60,20 @@ class PlayState extends FlxState
 		_grpItems = new FlxTypedGroup<FlxSprite>();
 		//Tiled Map
 		var tileLoader = new TiledLoader(AssetPaths.tilemap__tmx);
-		_tileMap = tileLoader.loadTilemap(AssetPaths.tiles__png);
-		_tileMap.setTileProperties(2, FlxObject.NONE);
-		_tileMap.setTileProperties(3, FlxObject.ANY);
+
+		_backgroundTileMap = tileLoader.loadTilemapLayer(AssetPaths.tileset__png, 32, 32, "BackgroundTile");
+		add(_backgroundTileMap);
+
+		_tileMap = tileLoader.loadTilemapLayer(AssetPaths.tileset__png, 32, 32, "ForegroundTile");
+		_tileMap.setTileProperties(0, FlxObject.NONE, _tileMap._tileObjects.length - 1);
+		_tileMap.setTileProperties(0, FlxObject.ANY);
+		// _tileMap.setTileProperties(31, FlxObject.ANY);
+		// _tileMap.setTileProperties(32, FlxObject.ANY);
+		// _tileMap.setTileProperties(33, FlxObject.ANY);
 		_tileMap.follow();
 		add(_tileMap);
 		tileLoader.loadObjectgroups(createObjects);
+
 
 		add(_grpObastacles);
 		add(_grpEntities);
@@ -82,9 +93,12 @@ class PlayState extends FlxState
 		
 		add(_fog);
 
-		navigation = new Navigation(this);
+		//Navigation Stuff
 		FlxG.camera.focusOn(player.getMidpoint());
+		navigation = new Navigation(this);
 		add(navigation);
+
+		// FlxG.camera.follow(player, FlxCameraFollowStyle.TOPDOWN, 1);
 
 		//HUD
 		gameHUD = new GameHUD(this);
