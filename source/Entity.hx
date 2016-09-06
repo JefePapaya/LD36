@@ -5,14 +5,23 @@ import flixel.FlxG;
 
 class Entity extends FlxSprite
 {
+	//Items
+
+
+	//Environment
+	public static inline var TREE = "tree";
+	public static inline var WOLF = "wolf";
+
 	public var isVisibleInFog:Bool = true;
 	public var lightRadius:Float = 0;
 	public var actionText:String;
 	public var actions:Array<ActionObject>;
+	public var type:Int = -1;
 
 	public function new(X:Float = 0, Y:Float = 0) 
 	{
 		super(X, Y);
+		immovable = true;
 		actions = new Array<ActionObject>();
 	}
 

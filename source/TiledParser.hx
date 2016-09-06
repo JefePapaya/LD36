@@ -19,59 +19,56 @@ class TiledParser
 	static var TYPE_ATTR = "type";
 	static var NAME_ATTR = "name";
 
-	public static function parseObject(data:Xml):Entity
+	public static function parseEntity(data:Xml):Entity
 	{
 		var origin = parseXY(data);
 		var type = Std.parseInt(data.get(TYPE_ATTR));
 		var name = data.get(NAME_ATTR);
 		var entity = new Entity(origin.x, origin.y);
 
-		// if (name != null && name == "fire") {
-		// 	entity.lightRadius = GameConfig.fireLightRadius;
-		// }
-		// else if (name != null && name == "bear") {
-		// 	entity.makeGraphic(20, 16, FlxColor.BROWN, true);
-		// 	entity.isVisibleInFog = false;
-		// }
-		// else if (name != null && name == "wolf") {
-		// 	entity.makeGraphic(14, 14, FlxColor.GRAY, true);
-		// 	entity.isVisibleInFog = false;
-		// 	entity.actionText = Strings.ACTION_WOLF;
-		// }
-		// else if (name != null && name == "tree") {
-		// 	entity.makeGraphic(14, 32, FlxColor.GREEN, true);	
-		// 	entity.immovable = true;
-		// }
-		// else if (name != null && name == "axe") {
-		// 	entity.makeGraphic(14, 14, FlxColor.BLUE, true);
-		// 	entity.isVisibleInFog = false;
-		// 	entity.actionText = Strings.ACTION_AXE;
-		// }
-		// else if (name != null && name == "hut") {
-		// 	entity.makeGraphic(32, 48, FlxColor.BROWN, true);
-		// 	entity.isVisibleInFog = false;
-		// 	entity.immovable = true;
-		// 	entity.actionText = Strings.ACTION_HUT;
-		// 	var action1 = new ActionObject();
-		// 	action1.description = "Go Inside";
-		// 	action1.action = function () {
-		// 		trace("Go inside action");
-		// 	};
-		// 	entity.actions.push(action1);
-		// 	var action2 = new ActionObject();
-		// 	action2.description = "Chest";
-		// 	action2.action = function () {
-		// 		trace("Chest action");
-		// 	};
-		// 	entity.actions.push(action2);
-		// 	var action3 = new ActionObject();
-		// 	action3.description = "Fire bond";
-		// 	action3.action = function () {
-		// 		trace("Fire bond action");
-		// 	};
-		// 	entity.actions.push(action3);
-		// }
+		if (type != null) {
+			entity.type = type;
+		}
 
+		switch name {
+			case Entity.TREE:
+				entity.actionText = "Tree";
+			case Entity.WOLF: 
+				entity.actionText = Strings.ACTION_WOLF;
+			default:
+		}
+
+		loadEntityGraphic(entity, name, type);
+
+		return entity;
+	}
+
+	public static function parseItem(data:Xml):Item
+	{
+		var origin = parseXY(data);
+		var type = Std.parseInt(data.get(TYPE_ATTR));
+		var name = data.get(NAME_ATTR);
+		var item = new Item(origin.x, origin.y);
+
+		switch name {
+			case Item.BERRIES:	
+				item.actionText = Item.BERRIES;
+			case Item.BERRY:
+				item.actionText = Item.BERRY;
+			case Item.FUR:
+			case Item.MEAT:
+			case Item.OIL:
+			case Item.STONE:
+			case Item.WOOD:
+			default:
+		}
+
+		loadEntityGraphic(item, name);
+		return item;
+	}
+
+	static function loadEntityGraphic(entity:Entity, name:String, ?type:Int=null) {
+		//Load the corresponding entity
 		var path = "assets/images/objects/" + name;
 		if (type != null) {
 			path = path + "_" + type;
@@ -79,11 +76,7 @@ class TiledParser
 		path = path + ".png";
 
 		entity.loadGraphic(path);
-
-		FlxG.log.add("parseblock: " + data.toString());
-
-		return entity;
-	}
+	} 
 
 	public static function parsePlayer(data:Xml):Player
 	{

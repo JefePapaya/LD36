@@ -9,6 +9,7 @@ import flixel.math.FlxPoint;
 class Player extends FlxSprite
 {
 	public var speed:Float;
+	public var inventory:Inventory;
 
 	public function new(X:Float = 0, Y:Float = 0) 
 	{
@@ -21,6 +22,9 @@ class Player extends FlxSprite
 		animation.add("wlr", [3, 4, 3, 5], 6, false);
 		animation.add("wup", [6, 7, 6, 8], 6, false);
 
+		//Inventory
+		inventory = new Inventory();
+
 		//Setup stuff from config
 		drag.x = drag.y = GameConfig.playerDrag;
 		speed = GameConfig.playerSpeed;
@@ -32,7 +36,7 @@ class Player extends FlxSprite
 	override public function update(elapsed:Float) 
 	{
 		updateMovement();
-		super.update(elapsed);
+		super.update(elapsed);	
 	}
 
 	override public function updateAnimation(elapsed)

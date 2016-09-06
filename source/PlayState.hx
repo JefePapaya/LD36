@@ -38,15 +38,15 @@ class PlayState extends FlxState
 	var _grpEntities:FlxTypedGroup<FlxSprite>;
 	var _grpObastacles:FlxTypedGroup<FlxSprite>;
 	var _grpCreatures:FlxTypedGroup<FlxSprite>;
-	var _grpItems:FlxTypedGroup<FlxSprite>;
+	var _grpItems:FlxTypedGroup<Item>;
 	var _grpTileMap:FlxTypedGroup<FlxSprite>;
-	
-	
+		
 	//Navigation
 	var _cameraReturnTimer:Float = GameConfig.navigationCameraIdleReturnTime;
 	public var navigation:Navigation;
 
 	//HUD
+	public var inventoryController:InventoryController;
 	public var gameHUD:GameHUD;
 
 	@:access(flixel.tile.FlxBaseTilemap)
@@ -57,7 +57,7 @@ class PlayState extends FlxState
 		_grpEntities = new FlxTypedGroup<FlxSprite>();
 		_grpObastacles = new FlxTypedGroup<FlxSprite>();
 		_grpCreatures = new FlxTypedGroup<FlxSprite>();
-		_grpItems = new FlxTypedGroup<FlxSprite>();
+		_grpItems = new FlxTypedGroup<Item>();
 		//Tiled Map
 		var tileLoader = new TiledLoader(AssetPaths.tilemap__tmx);
 
@@ -101,8 +101,18 @@ class PlayState extends FlxState
 		// FlxG.camera.follow(player, FlxCameraFollowStyle.TOPDOWN, 1);
 
 		//HUD
+		inventoryController = new InventoryController(this);
+		inventoryController.playerInventory = player.inventory;
 		gameHUD = new GameHUD(this);
 		add(gameHUD);
+
+		//Changing the mouse cursor test
+		// var cursorSprite = new FlxSprite();
+		// cursorSprite.makeGraphic(15, 15, FlxColor.TRANSPARENT);
+		// cursorSprite.drawCircle(7, 7, 7);
+		// FlxG.mouse.load(cursorSprite.pixels);
+
+		FlxG.watch.addMouse();
 	}
 
 	override public function update(elapsed:Float):Void
@@ -110,13 +120,14 @@ class PlayState extends FlxState
 		super.update(elapsed);
 		//Camera stuff
 		FlxG.worldBounds.setPosition(FlxG.camera.scroll.x, FlxG.camera.scroll.y);
-
-		updateInput();
+		//Collisions
 		FlxG.collide(player, _stone, collidePlayerStone);
 		FlxG.collide(player, _grpObastacles);
 		FlxG.collide(player, _tileMap);
 		//Animation must be updated after collision
 		player.updateAnimation(elapsed);
+
+		updateInput();
 
 		updateFogOfWar();
 	}
@@ -131,13 +142,13 @@ class PlayState extends FlxState
 			case TiledParser.PLAYER_LAYER:
 				player = TiledParser.parsePlayer(data);
 			case TiledParser.ENTITY_LAYER:
-				_grpEntities.add(TiledParser.parseObject(data));
+				_grpEntities.add(TiledParser.parseEntity(data));
 			case TiledParser.CREATURES_LAYER:
-				_grpCreatures.add(TiledParser.parseObject(data));
+				_grpCreatures.add(TiledParser.parseEntity(data));
 			case TiledParser.ENVIRONMENT_LAYER:
-				_grpObastacles.add(TiledParser.parseObject(data));
+				_grpObastacles.add(TiledParser.parseEntity(data));
 			case TiledParser.ITEMS_LAYER:
-				_grpObastacles.add(TiledParser.parseObject(data));
+				_grpItems.add(TiledParser.parseItem(data));
 			default:
 				throw "Tried to load unknown layer: " + layer;
 		}
@@ -226,11 +237,45 @@ class PlayState extends FlxState
 	}
 
 	function updateInput() {
+		#if !FLX_NO_MOUSE
+		//getting the topmost item
+		var item:Item = null;
+		_grpItems.forEach(function (obj:Item) {
+			if (FlxG.mouse.overlaps(obj)) {
+				item = obj;
+			}
+		});
+		//Displaying item's actionText
+		if (item != null) {
+			if (item.actionText != null && visible == true) {
+				gameHUD.displayActionText(item.actionText, item);
+			}
+		}
+		//Taking item
+		//Just open inventory for now
+		if (FlxG.mouse.justReleased && item != null) {
+			if (player.inventory.putItem(item)) {
+				_grpItems.remove(item);
+			}
+		}
+		#end
 		#if !FLX_NO_KEYBOARD
 		if (FlxG.keys.justReleased.R) {
 			FlxG.resetState();
 		}
+		else if (FlxG.keys.justReleased.I) {
+			openInventory();
+		}
 		#end
+	}
+
+	public function openInventory() {
+		inventoryController.open();
+		add(inventoryController);
+	}
+
+	public function closeInventory() {
+		remove(inventoryController);
 	}
 
 	function collidePlayerStone(p:Player, s:FlxSprite)

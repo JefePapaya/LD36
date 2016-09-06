@@ -1,5 +1,6 @@
 /Export
 /export
+/.vscode
 .DS_Store
 *.sublime-project
 *.sublime-workspace

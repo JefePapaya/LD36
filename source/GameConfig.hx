@@ -16,5 +16,10 @@ class GameConfig {
 	public static var navigationScrollSpeed:Float = 160;
 	public static var navigationCameraIdleReturnTime:Float = 4;
 
+	//Inventory
+	public static var INVENTORY_PLAYER_NUM_SLOTS:Int = 12;
+	public static var inventoryHouseNumSlots:Int = 24;
+	public static var inventoryDropNumSlots:Int = 12;
+
 	//Map generation
 }
