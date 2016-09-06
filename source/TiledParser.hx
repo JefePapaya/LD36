@@ -62,7 +62,7 @@ class TiledParser
 			case Item.WOOD:
 			default:
 		}
-
+		item.name = name;
 		loadEntityGraphic(item, name);
 		return item;
 	}

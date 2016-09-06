@@ -1,6 +1,8 @@
 package;
 
 import flixel.FlxCamera.FlxCameraFollowStyle;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
@@ -11,6 +13,7 @@ import flixel.tile.FlxTilemap;
 import flixel.tile.FlxBaseTilemap;
 import flixel.ui.FlxButton;
 import flixel.math.FlxMath;
+import flixel.math.FlxPoint;
 import flixel.util.FlxAxes;
 import flixel.util.FlxColor;
 import flash.geom.Rectangle;
@@ -19,6 +22,7 @@ import flash.geom.ColorTransform;
 import flash.display.BitmapDataChannel;
 import flash.display.BitmapData;
 using flixel.util.FlxSpriteUtil;
+using util.SpriteUtil;
 
 class PlayState extends FlxState
 {
@@ -276,6 +280,14 @@ class PlayState extends FlxState
 
 	public function closeInventory() {
 		remove(inventoryController);
+	}
+
+	public function dropItem(item:Item, position:FlxPoint) {
+		_grpItems.add(item);
+		item.scrollFactor.set(1, 1);
+		item.centerInPoint(position);
+		item.y -= 32 + item.height / 2;
+		FlxTween.tween(item, {y: position.y - item.height / 2}, 0.25, {ease: FlxEase.backIn});
 	}
 
 	function collidePlayerStone(p:Player, s:FlxSprite)

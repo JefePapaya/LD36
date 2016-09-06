@@ -14,9 +14,14 @@ class Item extends Entity
 
     public var inventorySortOrder:String = "";
     public var decay:Int = 5;
+	public var name:String;
 
 	public function new(X:Float = 0, Y:Float = 0) 
     {
         super(X, Y);
     }
+
+	override public function toString():String {
+		return name;
+	}
 }

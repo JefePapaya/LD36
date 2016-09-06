@@ -94,38 +94,31 @@ class InventoryController extends FlxGroup
     {
         #if !FLX_NO_KEYBOARD
         //justpressed -> select item
-        //  -> yep
+        //  -> yep v
         //  TODO: double click use
 
         //pressed -> move Item
-        //  -> just that
+        //  -> just that v
 
 
         //justreleased -> drop item
-        //  -> grab
+        //  -> grab v
         //  -> drop
         //  -> reorder
 
 
-        if (FlxG.keys.justReleased.ESCAPE) {
+        if (FlxG.keys.justReleased.ESCAPE || FlxG.keys.justReleased.I) {
             parent.closeInventory();
         }
         #end
         #if !FLX_NO_MOUSE
         updateInventoryInput();
-        // if (updateInventoryInput()) {
-            
-        // }
-        if (FlxG.mouse.justReleased) {
-            if (!FlxG.mouse.overlaps(_grpInteractive)) {
-                parent.closeInventory();
-            }
-        }
         #end
     }
 
     function updateInventoryInput()
     {
+        //Get the inventory
         var inventory:Inventory = null;
         for (inv in inventories) {
             if (FlxG.mouse.overlaps(inv.container)) {
@@ -133,44 +126,76 @@ class InventoryController extends FlxGroup
             }
         }
 
-        //Drag item around
+        //Respond to input
         if (FlxG.mouse.pressed && _item != null) {
-            _item.centerInPoint(FlxG.mouse.getScreenPosition());
-            _holding = true;
+            dragSelectedItem();
         }
-        if (inventory != null && FlxG.mouse.overlaps(inventory.container)) {
+        if (inventory != null) {
             if (FlxG.mouse.justReleased && _item != null) {
-                //Place item
-                var slot = inventory.getSlotAtPosition(FlxG.mouse.getScreenPosition());
-                var tempItem = slot.item;
-                if (_slot != null && _item != null) {
-                    if (_inventory != inventory) {
-                        _inventory.removeItem(_item);
-                        inventory.putItem(_item);
-                    }
-                    else {
-                        _slot.item = tempItem;
-                        slot.item = _item;
-                        inventory.updateItemPositions();
-                    }
-                }
-                resetInput();
+                placeItem(inventory);
             }
             else if (FlxG.mouse.justPressed && _item == null) {
-                //Select Item
-                _slot = inventory.getSlotAtPosition(FlxG.mouse.getScreenPosition());
-                _inventory = inventory;
-                if (_slot != null && _slot.item != null) {
-                    _item = _slot.item;
-                    inventory.removeItem(_item);
-                    add(_item);
-                }
+                selectItem(inventory);
             }
             else if (!_holding){
                 //Clean up
                 resetInput();
             }
         }
+        //Mouse not on inventory
+        else {
+            if (FlxG.mouse.justReleased && _item != null) {
+                dropItem();
+            }
+            else if (FlxG.mouse.justReleased) {
+                parent.closeInventory();
+            }
+        }
+    }
+
+    function dragSelectedItem() {
+        _item.centerInPoint(FlxG.mouse.getScreenPosition());
+        _holding = true;
+    }
+
+    function placeItem(inventory:Inventory) {
+
+        var slot = inventory.getSlotAtPosition(FlxG.mouse.getScreenPosition());
+        if (slot == null) {
+            _inventory.putItem(_item, _slot);
+        }
+        else {
+            var tempItem = slot.item;
+            if (_slot != null && _item != null) {
+                if (_inventory != inventory) {
+                    _inventory.removeItem(_item);
+                    inventory.putItem(_item);
+                }
+                else {
+                    _slot.item = tempItem;
+                    slot.item = _item;
+                    inventory.updateItemPositions();
+                }
+            }
+        }
+        resetInput();
+    }
+
+    function selectItem(inventory:Inventory) {
+
+        _slot = inventory.getSlotAtPosition(FlxG.mouse.getScreenPosition());
+        _inventory = inventory;
+        if (_slot != null && _slot.item != null) {
+            _item = _slot.item;
+            inventory.removeItem(_item);
+            add(_item);
+        }
+    }
+
+    function dropItem() {
+        remove(_item);
+        parent.dropItem(_item, parent.player.getMidpoint());
+        resetInput();
     }
 
     function resetInput() {

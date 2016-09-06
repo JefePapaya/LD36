@@ -41,6 +41,7 @@ class Inventory extends FlxTypedGroup<FlxSprite>
             // slot.centerOffsets();
             _slots.push(slot);
             add(slot);
+            _items.push(null);
         }
 
         forEach(function (spr:FlxSprite){
@@ -73,28 +74,48 @@ class Inventory extends FlxTypedGroup<FlxSprite>
     }
 
     /**
-        Inserts an item in the first slot and offsets
+        Inserts an item inSlot or in the first slot and shifts
         all other items. Return true if the item was
         added, otherwise false (inventory full)
     **/
-    public function putItem(item:Item):Bool {
-        trace("put item");
-        trace("items length: + " + _items.length);  
+    public function putItem(item:Item, ?inSlot:Slot=null):Bool {
         if (usedSlots < numSlots) {
-            _items.insert(0, item);
+            if (inSlot != null) {
+                if (inSlot.item != null) {
+                    return false;
+                }
+                inSlot.item = item;
+                _items[_slots.indexOf(inSlot)] = item;
+                item.scrollFactor.set();
+                updateItemPositions();
+                usedSlots++;
+                return true;
+            }
+            placeAndShift(item);
             usedSlots++;
             for (i in 0..._slots.length) {
-                if (i < _items.length) {
-                    _slots[i].item = _items[i];
-                    item.scrollFactor.set();
-                }
+                _slots[i].item = _items[i];
+                item.scrollFactor.set();
             }
             updateItemPositions();
-            trace("put item return true");
             return true;
         }
-        trace("put item return false");
         return false;
+    }
+
+    function placeAndShift(item:Item, ?position:Int=0) {
+        if (position >= numSlots) {
+            return;
+        }
+        var tempItem = _items[position];
+        _items[position] = item;
+
+        if (tempItem == null) {
+            return;
+        }
+
+        position++;
+        placeAndShift(tempItem, position);
     }
 
     public function removeItem(item:Item):Bool {
@@ -104,6 +125,7 @@ class Inventory extends FlxTypedGroup<FlxSprite>
                 slot.item = null;
                 _items[i] = null;
                 updateItemPositions();
+                usedSlots--;
                 return true;
             }
         }
@@ -144,12 +166,11 @@ class Inventory extends FlxTypedGroup<FlxSprite>
 
         for (i in 0..._slots.length) {
             var slot = _slots[i];
-            if (i <= _slots.length) {
-                var item = slot.item;
-                if (item != null) {
-                    item.centerInGraphics(slot);
-                    add(item);
-                }
+            var item = slot.item;
+            _items[i] = item;
+            if (item != null) {
+                item.centerInGraphics(slot);
+                add(item);
             }
         }
     }
@@ -167,5 +188,10 @@ class Slot extends FlxUI9SliceSprite
         width += StyleConfig.INVENTORY_SLOT_SPACING_X;
         height += StyleConfig.INVENTORY_SLOT_SPACING_Y;
         centerOffsets();
+    }
+
+    override public function toString():String
+    {
+        return item == null ? "0" : "1";
     }
 }
