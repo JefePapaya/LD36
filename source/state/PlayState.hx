@@ -1,5 +1,7 @@
-package;
+package state;
 
+import object.*;
+import system.*;
 import flixel.FlxCamera.FlxCameraFollowStyle;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
@@ -257,7 +259,7 @@ class PlayState extends FlxState
 		}
 		//Taking item
 		//Just open inventory for now
-		if (FlxG.mouse.justReleased && item != null) {
+		if (FlxG.mouse.justReleased && item != null && item.interactive) {
 			if (player.inventory.putItem(item)) {
 				_grpItems.remove(item);
 			}
@@ -268,18 +270,14 @@ class PlayState extends FlxState
 			FlxG.resetState();
 		}
 		else if (FlxG.keys.justReleased.I) {
-			openInventory();
+			if (inventoryController.isOpen) {
+				inventoryController.close();
+			}
+			else {
+				inventoryController.open();
+			}
 		}
 		#end
-	}
-
-	public function openInventory() {
-		inventoryController.open();
-		add(inventoryController);
-	}
-
-	public function closeInventory() {
-		remove(inventoryController);
 	}
 
 	public function dropItem(item:Item, position:FlxPoint) {
@@ -287,7 +285,11 @@ class PlayState extends FlxState
 		item.scrollFactor.set(1, 1);
 		item.centerInPoint(position);
 		item.y -= 32 + item.height / 2;
-		FlxTween.tween(item, {y: position.y - item.height / 2}, 0.25, {ease: FlxEase.backIn});
+		item.interactive = false;
+		FlxTween.tween(item, {y: position.y - item.height / 2}, 0.25, {ease: FlxEase.backIn, 
+			onComplete:function(tween:FlxTween){
+				item.interactive = true;
+			}});
 	}
 
 	function collidePlayerStone(p:Player, s:FlxSprite)

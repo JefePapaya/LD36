@@ -1,5 +1,6 @@
-package;
+package system;
 
+import object.*;
 import flixel.FlxG;
 import flash.geom.Rectangle;
 import flixel.math.FlxPoint;
@@ -14,6 +15,8 @@ class Inventory extends FlxTypedGroup<FlxSprite>
     public var width(default, null):Int = StyleConfig.INVENTORY_WIDTH;
     public var height(default, null):Int = StyleConfig.INVENTORY_HEIGHT;
     public var container(default, null):FlxSprite;
+    public var itemCount(default, null):Map<String, Int>;
+
     public var numSlots:Int;
     public var usedSlots:Int;
     var _slots:Array<Slot>;
@@ -25,6 +28,7 @@ class Inventory extends FlxTypedGroup<FlxSprite>
 
         numSlots = maxSlots;
         usedSlots = 0;
+        itemCount = new Map<String, Int>();
         _slots = new Array<Slot>();
         _items = new Array<Item>();
 
@@ -50,6 +54,8 @@ class Inventory extends FlxTypedGroup<FlxSprite>
 
         //Puts all the slots into place
         updateSpritePositions();
+        // //Debug
+        // FlxG.watch.add(this, "itemCount");
     }
 
     override public function update(elapsed:Float)
@@ -87,17 +93,15 @@ class Inventory extends FlxTypedGroup<FlxSprite>
                 inSlot.item = item;
                 _items[_slots.indexOf(inSlot)] = item;
                 item.scrollFactor.set();
-                updateItemPositions();
-                usedSlots++;
+                updateItems();
                 return true;
             }
             placeAndShift(item);
-            usedSlots++;
             for (i in 0..._slots.length) {
                 _slots[i].item = _items[i];
                 item.scrollFactor.set();
             }
-            updateItemPositions();
+            updateItems();
             return true;
         }
         return false;
@@ -124,8 +128,7 @@ class Inventory extends FlxTypedGroup<FlxSprite>
             if (slot.item == item) {
                 slot.item = null;
                 _items[i] = null;
-                updateItemPositions();
-                usedSlots--;
+                updateItems();
                 return true;
             }
         }
@@ -135,7 +138,7 @@ class Inventory extends FlxTypedGroup<FlxSprite>
     function updateSpritePositions() 
     {
         updateSlotPositions();
-        updateItemPositions();
+        updateItems();
     }
 
     function updateSlotPositions()
@@ -156,19 +159,31 @@ class Inventory extends FlxTypedGroup<FlxSprite>
         }
     }
 
-    public function updateItemPositions()
+    public function updateItems()
     {
         forEach(function(member:FlxSprite) {
             if (Std.is(member, Item)) {
                 remove(member);
             }
         });
+        //Resets item quantities
+        for (key in itemCount.keys()) {
+            itemCount[key] = 0;
+        }
 
+        usedSlots = 0;
         for (i in 0..._slots.length) {
             var slot = _slots[i];
             var item = slot.item;
             _items[i] = item;
             if (item != null) {
+                if (!itemCount.exists(item.name)) {
+                    itemCount[item.name] = 0;
+                }
+                else {
+                    itemCount[item.name] += 1;
+                }
+                usedSlots++;
                 item.centerInGraphics(slot);
                 add(item);
             }

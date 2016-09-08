@@ -1,5 +1,6 @@
-package;
+package system;
 
+import object.*;
 import flixel.group.FlxGroup;
 import flixel.math.FlxPoint;
 import flixel.FlxSprite;

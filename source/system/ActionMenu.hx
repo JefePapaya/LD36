@@ -1,5 +1,7 @@
-package;
+package system;
 
+import state.PlayState;
+import object.*;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup;

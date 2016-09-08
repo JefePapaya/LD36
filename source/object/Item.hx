@@ -1,4 +1,4 @@
-package;
+package object;
 
 import flixel.FlxSprite;
 
@@ -12,6 +12,7 @@ class Item extends Entity
 	public static inline var BERRY = "berry";
 	public static inline var BERRIES = "berries";
 
+	public var interactive:Bool = true;
     public var inventorySortOrder:String = "";
     public var decay:Int = 5;
 	public var name:String;

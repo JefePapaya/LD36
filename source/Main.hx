@@ -1,6 +1,7 @@
 package;
 
 import flixel.FlxGame;
+import state.PlayState;
 import openfl.display.Sprite;
 
 class Main extends Sprite

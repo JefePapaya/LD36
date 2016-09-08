@@ -1,6 +1,8 @@
-package;
+package system;
 
-import Inventory;
+import state.PlayState;
+import system.Inventory.Slot;
+import object.*;
 import flixel.FlxState;
 import flixel.FlxBasic;
 import flixel.FlxSprite;
@@ -15,6 +17,7 @@ class InventoryController extends FlxGroup
     public var playerInventory:Inventory;
     public var inventories:Array<Inventory>;
     public var parent:PlayState;
+    public var isOpen:Bool = false;
 
     //Inventory input
     var _inventory:Inventory;
@@ -51,6 +54,7 @@ class InventoryController extends FlxGroup
     public function open(?aditionalInvetories:Array<Inventory> = null)
     {
        //Clean everything to start out fresh
+       isOpen = true;
        resetInput;
        _grpInteractive = new FlxTypedGroup<FlxSprite>();
        forEach(function (member:FlxBasic) {
@@ -85,6 +89,12 @@ class InventoryController extends FlxGroup
                }
            }
        });
+       parent.add(this);
+    }
+
+    public function close() {
+        isOpen = false;
+        parent.remove(this);
     }
 
     /**
@@ -106,10 +116,6 @@ class InventoryController extends FlxGroup
         //  -> drop
         //  -> reorder
 
-
-        if (FlxG.keys.justReleased.ESCAPE || FlxG.keys.justReleased.I) {
-            parent.closeInventory();
-        }
         #end
         #if !FLX_NO_MOUSE
         updateInventoryInput();
@@ -148,7 +154,7 @@ class InventoryController extends FlxGroup
                 dropItem();
             }
             else if (FlxG.mouse.justReleased) {
-                parent.closeInventory();
+                close();
             }
         }
     }
@@ -174,7 +180,7 @@ class InventoryController extends FlxGroup
                 else {
                     _slot.item = tempItem;
                     slot.item = _item;
-                    inventory.updateItemPositions();
+                    inventory.updateItems();
                 }
             }
         }
@@ -189,12 +195,14 @@ class InventoryController extends FlxGroup
             _item = _slot.item;
             inventory.removeItem(_item);
             add(_item);
+            FlxG.watch.add(this, "_item");
         }
     }
 
     function dropItem() {
         remove(_item);
         parent.dropItem(_item, parent.player.getMidpoint());
+        FlxG.watch.remove(this, "_item");
         resetInput();
     }
 

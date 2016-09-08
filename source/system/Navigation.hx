@@ -1,5 +1,6 @@
-package;
+package system;
 
+import state.PlayState;
 import flixel.FlxG;
 import flixel.FlxCamera;
 import flixel.math.FlxPoint;
