@@ -2,6 +2,7 @@ package system;
 
 import state.PlayState;
 import system.Inventory.Slot;
+import system.Signals;
 import object.*;
 import flixel.FlxState;
 import flixel.FlxBasic;
@@ -201,7 +202,7 @@ class InventoryController extends FlxGroup
 
     function dropItem() {
         remove(_item);
-        parent.dropItem(_item, parent.player.getMidpoint());
+        Signals.drop.dispatch(_item, parent.player.getMidpoint());
         FlxG.watch.remove(this, "_item");
         resetInput();
     }

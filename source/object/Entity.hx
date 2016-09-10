@@ -6,12 +6,10 @@ import flixel.FlxG;
 
 class Entity extends FlxSprite
 {
-	//Items
-
-
 	//Environment
 	public static inline var TREE = "tree";
 	public static inline var WOLF = "wolf";
+	public static inline var BUSH = "bush";
 
 	public var isVisibleInFog:Bool = true;
 	public var lightRadius:Float = 0;
@@ -32,20 +30,27 @@ class Entity extends FlxSprite
 		updateInput();
 	}
 
+	/**
+		Sets appropriate width and height
+	**/
+	public function setBounds () {
+		//Override in child classes
+	}
+
 	function updateInput() 
 	{
 		#if !FLX_NO_MOUSE
-		if (FlxG.mouse.overlaps(this)) {
-			if (actions.length > 0) {
-				FlxG.log.add("actions length " + actions.length);
-			}
-			if (actionText != null && visible == true) {
-				GameHUD.sharedInstance.displayActionText(actionText, this);
-			}
-			if (actions.length > 0 && (GameHUD.sharedInstance.actionMenu == null || GameHUD.sharedInstance.actionMenu.entity != this)) {
-				GameHUD.sharedInstance.showActionMenu(this);
-			}
-		}
+		// if (FlxG.mouse.overlaps(this)) {
+		// 	if (actions.length > 0) {
+		// 		FlxG.log.add("actions length " + actions.length);
+		// 	}
+		// 	if (actionText != null && visible == true) {
+		// 		GameHUD.sharedInstance.displayActionText(actionText, this);
+		// 	}
+		// 	if (actions.length > 0 && (GameHUD.sharedInstance.actionMenu == null || GameHUD.sharedInstance.actionMenu.entity != this)) {
+		// 		GameHUD.sharedInstance.showActionMenu(this);
+		// 	}
+		// }
 		#end
 	}
 }

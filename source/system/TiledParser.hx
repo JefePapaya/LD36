@@ -25,21 +25,26 @@ class TiledParser
 		var origin = parseXY(data);
 		var type = Std.parseInt(data.get(TYPE_ATTR));
 		var name = data.get(NAME_ATTR);
-		var entity = new Entity(origin.x, origin.y);
+		var entity:Entity = null;
+
+		switch name {
+			case Entity.TREE:
+				entity = new Tree(0, 0, type);
+			case Entity.WOLF: 
+				entity = new Entity();
+			case Entity.BUSH:
+				entity = new Bush(0, 0, type);
+			default:
+				entity = new Entity();
+		}
 
 		if (type != null) {
 			entity.type = type;
 		}
 
-		switch name {
-			case Entity.TREE:
-				entity.actionText = "Tree";
-			case Entity.WOLF: 
-				entity.actionText = Strings.ACTION_WOLF;
-			default:
-		}
-
-		loadEntityGraphic(entity, name, type);
+		entity.setPosition(origin.x + entity.offset.x, origin.y + entity.offset.y);
+		// loadEntityGraphic(entity, name, type);
+		// entity.setBounds();
 
 		return entity;
 	}
@@ -68,7 +73,7 @@ class TiledParser
 		return item;
 	}
 
-	static function loadEntityGraphic(entity:Entity, name:String, ?type:Int=null) {
+	public static function loadEntityGraphic(entity:Entity, name:String, ?type:Int=null) {
 		//Load the corresponding entity
 		var path = "assets/images/objects/" + name;
 		if (type != null) {

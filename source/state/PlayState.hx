@@ -42,7 +42,7 @@ class PlayState extends FlxState
 
 	//Layers
 	var _grpEntities:FlxTypedGroup<FlxSprite>;
-	var _grpObastacles:FlxTypedGroup<FlxSprite>;
+	var _grpObstacles:FlxTypedGroup<FlxSprite>;
 	var _grpCreatures:FlxTypedGroup<FlxSprite>;
 	var _grpItems:FlxTypedGroup<Item>;
 	var _grpTileMap:FlxTypedGroup<FlxSprite>;
@@ -59,9 +59,11 @@ class PlayState extends FlxState
 	override public function create():Void
 	{
 		super.create();
+		//Register signals
+		Signals.drop.add(dropItem);
 
 		_grpEntities = new FlxTypedGroup<FlxSprite>();
-		_grpObastacles = new FlxTypedGroup<FlxSprite>();
+		_grpObstacles = new FlxTypedGroup<FlxSprite>();
 		_grpCreatures = new FlxTypedGroup<FlxSprite>();
 		_grpItems = new FlxTypedGroup<Item>();
 		//Tiled Map
@@ -81,7 +83,7 @@ class PlayState extends FlxState
 		tileLoader.loadObjectgroups(createObjects);
 
 
-		add(_grpObastacles);
+		add(_grpObstacles);
 		add(_grpEntities);
 		add(_grpItems);
 		add(_grpCreatures);
@@ -128,7 +130,7 @@ class PlayState extends FlxState
 		FlxG.worldBounds.setPosition(FlxG.camera.scroll.x, FlxG.camera.scroll.y);
 		//Collisions
 		FlxG.collide(player, _stone, collidePlayerStone);
-		FlxG.collide(player, _grpObastacles);
+		FlxG.collide(player, _grpObstacles);
 		FlxG.collide(player, _tileMap);
 		//Animation must be updated after collision
 		player.updateAnimation(elapsed);
@@ -152,7 +154,7 @@ class PlayState extends FlxState
 			case TiledParser.CREATURES_LAYER:
 				_grpCreatures.add(TiledParser.parseEntity(data));
 			case TiledParser.ENVIRONMENT_LAYER:
-				_grpObastacles.add(TiledParser.parseEntity(data));
+				_grpObstacles.add(TiledParser.parseEntity(data));
 			case TiledParser.ITEMS_LAYER:
 				_grpItems.add(TiledParser.parseItem(data));
 			default:
@@ -264,6 +266,28 @@ class PlayState extends FlxState
 				_grpItems.remove(item);
 			}
 		}
+		if (FlxG.mouse.justReleased && FlxG.mouse.overlaps(_grpObstacles)) {
+			_grpObstacles.forEachAlive(function (spr:FlxSprite) {
+				if (Std.is(spr, Tree) && FlxG.mouse.overlaps(spr)) {
+					var tree = cast(spr, Tree);
+					if (player.getMidpoint().distanceTo(tree.getMidpoint()) < 64) {
+						tree.hurt(1);
+					}
+					else {
+						FlxG.log.add("too far to cut");
+					}
+				}
+				else if (Std.is(spr, Bush) && FlxG.mouse.overlaps(spr)) {
+					var bush = cast(spr, Bush);
+					if (player.getMidpoint().distanceTo(bush.getMidpoint()) < 64) {
+						bush.harvest();
+					}
+					else {
+						FlxG.log.add("too far to harvest");
+					}
+				}
+			});
+		}
 		#end
 		#if !FLX_NO_KEYBOARD
 		if (FlxG.keys.justReleased.R) {
@@ -288,7 +312,7 @@ class PlayState extends FlxState
 		item.interactive = false;
 		FlxTween.tween(item, {y: position.y - item.height / 2}, 0.25, {ease: FlxEase.backIn, 
 			onComplete:function(tween:FlxTween){
-				item.interactive = true;
+				item.interactive = true;	
 			}});
 	}
 
